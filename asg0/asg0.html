@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset = "utf8"/>
+    <title>PeePee</title>
+    <script src = "lib/cuon-matrix-cse160.js"></script> 
+    <script src = "lib/asg0.js"></script>
+</head>
+
+    <body onload = "main()">
+        <div>
+            <canvas id = "test" width="400" height="400"></canvas>
+            
+        </div>
+        <div>
+            <p>V1</p><input id = "v1_x"></input>
+            <input id = "v1_y"></input>
+        </div>
+        <div>
+            <p>V2</p>
+            <input id = "v2_x"></input>
+            <input id = "v2_y"></input>
+        </div>
+        <button id = "draw_button" onclick = "handleDrawEvent()"> draw</button>
+        <div>
+        <button id = "draw_op_button" onclick = "(function(){
+            handleDrawEvent();
+            handleDrawOperationEvent()})();">run operation</button>
+        <select id = "draw_operation">
+
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+            <option value="multiply">Multiply</option>
+            <option value="divide">Divide</option>
+            <option value="magnitude">Magnitude</option>
+            <option value="normalize">Normalize</option>
+            <option value="angle between">Angle Between</option>
+            <option value="area">Area</option>
+
+
+        </select>
+        <input id = "scalar">scalar</input>
+                
+        </div>
+    </body>
+    
+
+</html>
