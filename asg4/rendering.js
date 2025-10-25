@@ -133,7 +133,7 @@ function renderAllShapes(){
 
   g_SpotX = Math.sin(g_lightAngle * Math.PI/180);
   g_SpotZ =  Math.cos(g_lightAngle * Math.PI/180);
-  console.log("SpotX, Y, Z",  g_SpotX, g_SpotY, g_SpotZ);
+  //console.log("SpotX, Y, Z",  g_SpotX, g_SpotY, g_SpotZ);
 
   //Light coords pushed to GLSL
   gl.uniform3f(u_LightPos, g_LightX, g_LightY, g_LightZ);
@@ -188,7 +188,7 @@ function initTextures(gl, n){
   image2.src = "sky.jpeg";
   
   image.onload = function(){ loadTexture(gl, n, texture, u_Sampler, image, 0);};
-  image.src = "stone.jpg";
+  image.src = "stone.png";
 
   if(!image2){
     console.log("Failed to create Image obj");

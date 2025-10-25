@@ -5,10 +5,11 @@ class Camera{
         this.rotate_constant = 0.175; // Pi / 18;
         this.rotate_neg_constant = -0.175;
         this.at_scalar = 100;
-        this.at = new Vector3([0, 5, -95]);
-        this.eye = new Vector3([0, 5, 7]);
+        this.at = new Vector3([10,0, 0]).normalize();
+        this.eye = new Vector3([0, 10, 0]);
         this.up = new Vector3([0,1,0]);
         this.matrix = new Matrix4();
+        this.mouseMove = true;
 
         document.addEventListener('keydown', (ev)=>{
             if (ev.key === 'w'){
@@ -25,23 +26,38 @@ class Camera{
             if(ev.key === 'd'){
                 this.move_right();
             }
+            if(ev.key===' ' && ev.target == document.body) {
+                ev.preventDefault();
+                this.move_up();
+            }
+            if(ev.key==='Shift') {
+                this.move_down();
+            }
 
             if(ev.key === 'j'){
                 this.rotate_x(this.rotate_neg_constant);
                 //this.at.elements[1] += this.rotate_constant;
-                this.updateMatrix();
             }
             if(ev.key === 'l'){
                 //this.at.elements[1] -= this.rotate_constant;
                 this.rotate_x(this.rotate_constant);
-                this.updateMatrix();
             }
 
             if (ev.key === 'i'){
                 this.rotate_y(this.rotate_constant);
-                this.updateMatrix();
+            }
+            if(ev.key === 'k'){
+                //this.at.elements[1] -= this.rotate_constant;
+                this.rotate_y(this.rotate_neg_constant);
             }
 
+            if (ev.key === 'p') {
+                if (this.mouseMove){
+                    this.mouseMove = false;
+                } else {
+                    this.mouseMove = true;
+                } 
+            }
             if(ev.key === 'm'){
                 //this.rotate_y(this.rotate_constant);
                 //this.at.elements[1] += this.rotate_constant;
@@ -56,7 +72,6 @@ class Camera{
                 //console.log(test.matrix);
                 console.log(norm.elements);
                 all_blocks.push(test);
-
             }
 
             if (ev.key == 'n'){
@@ -78,25 +93,20 @@ class Camera{
                     }else{
                         console.log("no");
                     }
-                }
-                
+                } 
             }
 
-            if(ev.key === 'k'){
-                //this.at.elements[1] -= this.rotate_constant;
-                this.rotate_y(this.rotate_neg_constant);
-                this.updateMatrix();
-            }
         });
 
         document.getElementById("webgl").addEventListener('mousemove',(ev) =>{
             //console.log(ev.movementX);
             let xPos = ev.movementX * Math.PI / 180;
             let yPos = ev.movementY * Math.PI / -180;
-            this.rotate_x(xPos);
-            //this.rotate_y(yPos);
-            this.updateMatrix();
-
+            if (this.mouseMove){
+                this.rotate(xPos, yPos);
+                //this.rotate_y(yPos);
+                this.updateMatrix();
+            }
         });
         document.getElementById("webgl").addEventListener('mousedown', (ev) =>{
             if (ev.button === 2){
@@ -148,22 +158,21 @@ class Camera{
         f.normalize();
         this.eye.add(f);
         this.at.add(f);
-        console.log(this.eye);
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
         this.updateMatrix();
     }
     move_back(){
         let f = new Vector3(this.eye.elements);
         let zero = new Vector3([0,0,0]);
-        console.log("eye", this.eye);
         f.sub(this.at);
         f.normalize();
         f.mul(-1.5);
         f.add(zero);
-        console.log(f);
         this.eye.add(f);
-
         this.at.add(f);
-        console.log(this.eye.elements);
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
         this.updateMatrix();
     }
 
@@ -174,26 +183,44 @@ class Camera{
         left.add(zero);
         this.eye.add(left);
         this.at.add(left);
-        console.log(left);
+
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
         this.updateMatrix();
     }
     move_right(){
         let dir = new Vector3(this.eye.elements).sub(this.at).normalize();
-        let left = Vector3.cross(dir, this.up);
+        let right = Vector3.cross(dir, this.up);
         let zero = new Vector3([0,0,0]);
-        left.add(zero);
-        this.eye.sub(left);
-        this.at.sub(left);
-        console.log(left);
+        right.add(zero);
+        this.eye.sub(right);
+        this.at.sub(right);
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
         this.updateMatrix();
     }
-
-    rotate_x(rads){
+    move_up(){
+        let up = new Vector3([0,1,0]);
+        this.eye.add(up);
+        this.at.add(up);
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
+        this.updateMatrix();
+    }
+    move_down(){
+        let down = new Vector3([0,-1,0]);
+        this.eye.add(down);
+        this.at.add(down);
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
+        this.updateMatrix();
+    }
+    rotate_z(rads){
 
         let dir = new Vector3(this.at.elements);
         let newVec;
 
-        dir.sub(this.eye);
+        dir.sub(this.eye).normalize();
 
         let [x, y, z] = dir.elements;
         console.log("XYZ: ", x, y, z);
@@ -211,35 +238,76 @@ class Camera{
         newVec.mul(mag);
         newVec.add(this.eye);
         //console.log("mag:", mag);
-
+        
         this.at.elements[0] = newVec.elements[0];
-        this.at.elements[2] = newVec.elements[2];
+        this.at.elements[2] = newVec.elements[2]; 
+        this.updateMatrix();
+        console.log("at", this.at.elements[0], this.at.elements[1], this.at.elements[2]);
+        console.log("eye", this.eye.elements[0], this.eye.elements[1], this.eye.elements[2]);
+    }
+
+    rotate(rads, asimuth){
+        let dir = new Vector3(this.at.elements);
+        let newX, newY, newZ;
+        dir.sub(this.eye);
+
+        // one issue - i think x, y, z is actually mapped to x, z, -y
+        let [x, z, y] = dir.elements;
+        y = y * -1;
+
+        console.log("XYZ: ", x, y, z, "rads: ", rads);
+
+        let mag   =  Math.sqrt(z*z + x*x + y*y);
+        let theta =  Math.acos(z/mag);
+        let phi   =  Math.atan2(y, x)
+        
+        phi -= rads; 
+        theta -= asimuth;
+        newX = Math.cos(phi) * Math.sin(theta) * mag;
+
+        newY = Math.sin(phi) * Math.sin(theta) * mag;
+
+        newZ = Math.cos(theta) * mag;
+        
+        this.at.elements[0] = newX;
+        this.at.elements[1] = newZ;
+        this.at.elements[2] = newY * -1;
+        // issue 2: did i ever manage like, 
+        // proper mapping of values from global
+        this.updateMatrix();
+
     }
 
     rotate_y(rads){
         let dir = new Vector3(this.at.elements);
         let newX, newY, newZ;
-
         dir.sub(this.eye);
 
-        let [x, y, z] = dir.elements;
+        // one issue - i think x, y, z is actually mapped to x, z, -y
+        let [x, z, y] = dir.elements;
+        y = y * -1;
 
-        console.log("XYZ: ", x, y, z);
-        let c = Math.sqrt(z*z + x * x);
+        console.log("XYZ: ", x, y, z, "rads: ", rads);
 
-        let mag = Math.sqrt(z*z + x*x + y*y);
-        let theta = Math.atan2(y, c);
-        theta += rads;
+        let mag   =  Math.sqrt(z*z + x*x + y*y);
+        let theta =  Math.acos(z/mag);
+        let phi   =  Math.atan2(y, x)
+        
+        theta -= rads;
 
-        newY = Math.sin(theta) * mag;
+        newX = Math.cos(phi) * Math.sin(theta) * mag;
 
-        newX = Math.cos(theta) * x;
+        newY = Math.sin(phi) * Math.sin(theta) * mag;
 
-        newZ = Math.cos(theta) * z;
+        newZ = Math.cos(theta) * mag;
         
         this.at.elements[0] = newX;
-        this.at.elements[1] = newY;
-        this.at.elements[2] = newZ;
+        this.at.elements[1] = newZ;
+        this.at.elements[2] = newY * -1;
+        // issue 2: did i ever manage like, 
+        // proper mapping of values from global
+        this.updateMatrix();
+
     }
 
     static looking(cube, point){
@@ -276,7 +344,7 @@ class Camera{
     }
     
     updateMatrix(){
-        let test = [...this.eye.elements, ... this.at.elements, ...this.up.elements];
+        let test = [...this.eye.elements, ...this.at.elements, ...this.up.elements];
         this.matrix.setLookAt(...test);
     }
 
